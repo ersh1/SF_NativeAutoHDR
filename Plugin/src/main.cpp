@@ -1,5 +1,8 @@
 #include "SFSE/Stub.h"
 
+#include "Hooks.h"
+#include "Settings.h"
+
 DLLEXPORT constinit auto SFSEPlugin_Version = []() noexcept {
 	SFSE::PluginVersionData data{};
 
@@ -50,9 +53,12 @@ DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
 	INFO("{} v{} loaded", Plugin::NAME, Plugin::Version);
 
 	// do stuff
-	SFSE::AllocTrampoline(1 << 10);
-
 	SFSE::GetMessagingInterface()->RegisterListener(MessageCallback);
+
+	Settings::Main::GetSingleton()->Load();
+
+	SFSE::AllocTrampoline(14);
+	Hooks::Install();
 
 	return true;
 }
