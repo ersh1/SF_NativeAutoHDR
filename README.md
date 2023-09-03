@@ -1,6 +1,8 @@
 # 📑 Starfield Native HDR
 Native dll plugin upgrading the Starfield's swapchain to a HDR format.
 
+ [Nexus Mods page](https://www.nexusmods.com/starfield/mods/588)
+
 ## ⚙ Requirements
 
 - [CMake](https://cmake.org/)
@@ -35,15 +37,15 @@ git submodule update
 .\build-release.ps1
 ```
 
-### DKUtil addon
+### ➕ DKUtil addon
 
 This project bundles [DKUtil](https://github.com/gottyduke/DKUtil).
 
-## License
+## 📖 License
 
 [GPL-3.0-or-later](COPYING) WITH [Modding Exception AND GPL-3.0 Linking Exception (with Corresponding Source)](EXCEPTIONS). Specifically, the Modded Code is Starfield (and its variants) and Modding Libraries include [Starfield Script Extender](https://github.com/ianpatt/sfse) and [DKUtil](https://github.com/gottyduke/DKUtil/) (and variants).
 
-## Credits
+## ❓ Credits
 
 - [ianpatt's Starfield Script Extender](https://github.com/ianpatt/sfse)
 - [Original plugin template](https://github.com/gottyduke/SF_PluginTemplate)
