@@ -1,64 +1,28 @@
-#include "SFSE/Stub.h"
+#include "DKUtil/Config.hpp"
 
 #include "Hooks.h"
 #include "Settings.h"
 
-DLLEXPORT constinit auto SFSEPlugin_Version = []() noexcept {
-	SFSE::PluginVersionData data{};
+using namespace DKUtil::Alias;
 
-	data.PluginVersion(Plugin::Version);
-	data.PluginName(Plugin::NAME);
-	data.AuthorName(Plugin::AUTHOR);
-	data.UsesSigScanning(true);
-	//data.UsesAddressLibrary(true);
-	data.HasNoStructUse(true);
-	//data.IsLayoutDependent(true);
-	data.CompatibleVersions({ RUNTIME_VERSION_1_7_23 });
-
-	return data;
-}();
-
-namespace
+BOOL APIENTRY DllMain(HMODULE a_hModule, DWORD a_ul_reason_for_call, LPVOID a_lpReserved)
 {
-	void MessageCallback(SFSE::MessagingInterface::Message* a_msg) noexcept
-	{
-		switch (a_msg->type) {
-		case SFSE::MessagingInterface::kPostLoad:
-			{
-				break;
-			}
-		default:
-			break;
-		}
-	}
-}
-
-/**
-// for preload plugins
-void SFSEPlugin_Preload(SFSE::LoadInterface* a_sfse);
-/**/
-
-DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
-{
+	if (a_ul_reason_for_call == DLL_PROCESS_ATTACH) {
 #ifndef NDEBUG
-	while (!IsDebuggerPresent()) {
-		Sleep(100);
-	}
+		while (!IsDebuggerPresent()) {
+			Sleep(100);
+		}
 #endif
 
-	SFSE::Init(a_sfse);
+		// stuff
+		dku::Logger::Init(Plugin::NAME, std::to_string(Plugin::Version));
 
-	DKUtil::Logger::Init(Plugin::NAME, std::to_string(Plugin::Version));
+		INFO("game type : {}", dku::Hook::GetProcessName());
 
-	INFO("{} v{} loaded", Plugin::NAME, Plugin::Version);
+		dku::Hook::Trampoline::AllocTrampoline(14);
+		Settings::Main::GetSingleton()->Load();
+		Hooks::Install();
+	}
 
-	// do stuff
-	SFSE::GetMessagingInterface()->RegisterListener(MessageCallback);
-
-	Settings::Main::GetSingleton()->Load();
-
-	SFSE::AllocTrampoline(14);
-	Hooks::Install();
-
-	return true;
+	return TRUE;
 }
