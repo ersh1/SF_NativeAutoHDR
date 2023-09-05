@@ -18,21 +18,6 @@ DLLEXPORT constinit auto SFSEPlugin_Version = []() noexcept {
 	return data;
 }();
 
-namespace
-{
-	void MessageCallback(SFSE::MessagingInterface::Message* a_msg) noexcept
-	{
-		switch (a_msg->type) {
-		case SFSE::MessagingInterface::kPostLoad:
-			{
-				break;
-			}
-		default:
-			break;
-		}
-	}
-}
-
 /**
 // for preload plugins
 void SFSEPlugin_Preload(SFSE::LoadInterface* a_sfse);
@@ -53,8 +38,6 @@ DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
 	INFO("{} v{} loaded", Plugin::NAME, Plugin::Version);
 
 	// do stuff
-	SFSE::GetMessagingInterface()->RegisterListener(MessageCallback);
-
 	Settings::Main::GetSingleton()->Load();
 
 	SFSE::AllocTrampoline(14);
