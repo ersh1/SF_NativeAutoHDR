@@ -6,9 +6,9 @@ namespace Settings
 	{
 		static std::once_flag ConfigInit;
 		std::call_once(ConfigInit, [&]() {
-			config.Bind(scRGBFrameBuffer, true);
-			config.Bind(scRGBImageSpaceBuffer, true);
-			config.Bind(scRGBScaleformCompositeBuffer, true);
+			config.Bind(ImageSpaceBufferFormat, 2);
+			config.Bind(ScaleformCompositeBufferFormat, 2);
+			config.Bind(FrameBufferFormat, 0);
 		});
 
 		config.Load();

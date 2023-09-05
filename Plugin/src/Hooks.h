@@ -27,7 +27,7 @@ namespace Hooks
 			{
 				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"44 8B 05 ?? ?? ?? ?? 89 55 FB">());
 				if (!scan) {
-					ERROR("Failed to find ImageSpaceBuffer format variable")
+					ERROR("Failed to find ImageSpaceBuffer and ScaleformCompositeBuffer format variables")
 				}
 				const auto offset = *reinterpret_cast<int32_t*>(scan + 3);
 				imageSpaceBufferPtr = reinterpret_cast<uint32_t*>(scan + 7 + offset);  // 5079A70
@@ -36,10 +36,31 @@ namespace Hooks
 
 			const auto settings = Settings::Main::GetSingleton();
 
-			*frameBufferPtr = settings->scRGBFrameBuffer ? 77 : 62;
-			*imageSpaceBufferPtr = settings->scRGBImageSpaceBuffer ? 77 : 62;
-			if (settings->scRGBScaleformCompositeBuffer) {
+			switch (*settings->FrameBufferFormat) {
+			case 1:
+				*frameBufferPtr = 62;
+				break;
+			case 2:
+				*frameBufferPtr = 77;
+				break;
+			}
+
+			switch (*settings->ImageSpaceBufferFormat) {
+			case 1:
+				*imageSpaceBufferPtr = 62;
+				break;
+			case 2:
+				*imageSpaceBufferPtr = 77;
+				break;
+			}
+
+			switch (*settings->ScaleformCompositeBufferFormat) {
+			case 1:
+				*scaleformCompositeBufferPtr = 62;
+				break;
+			case 2:
 				*scaleformCompositeBufferPtr = 77;
+				break;
 			}
 		}
 
@@ -66,14 +87,17 @@ namespace Hooks
 
 		static void Hook()
 		{
-			const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"E8 ?? ?? ?? ?? 8B 4D A8 8B 45 AC">());
-			if (!scan) {
-				ERROR("Failed to find callsite")
-			}
-			const auto callsiteOffset = *reinterpret_cast<int32_t*>(scan + 1);
-			const auto UnkFuncCallsite = AsAddress(scan + 5 + callsiteOffset + 0x3EA);
+			const auto settings = Settings::Main::GetSingleton();
+			if (*settings->FrameBufferFormat != 0) {
+				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"E8 ?? ?? ?? ?? 8B 4D A8 8B 45 AC">());
+				if (!scan) {
+					ERROR("Failed to find color space hook")
+				}
+				const auto callsiteOffset = *reinterpret_cast<int32_t*>(scan + 1);
+				const auto UnkFuncCallsite = AsAddress(scan + 5 + callsiteOffset + 0x3EA);
 
-			_UnkFunc = dku::Hook::write_call<5>(UnkFuncCallsite, Hook_UnkFunc);  // 32E7856
+				_UnkFunc = dku::Hook::write_call<5>(UnkFuncCallsite, Hook_UnkFunc);  // 32E7856
+			}
 		}
 
 	private:
