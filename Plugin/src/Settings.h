@@ -8,7 +8,11 @@ namespace Settings
     class Main : public DKUtil::model::Singleton<Main>
     {
     public:
-		Boolean scRGB = { "scRGB", "Main" };
+		Boolean scRGBFrameBuffer = { "scRGBFrameBuffer", "Main" };
+		Boolean scRGBImageSpaceBuffer{ "scRGBImageSpaceBuffer", "Main" };
+		Boolean scRGBScaleformCompositeBuffer{ "scRGBScaleformCompositeBuffer", "Main" };
+        
+		//Boolean upgradeScaleformCompositeBuffer = { "upgradeScaleformCompositeBuffer", "Main" };
 
         void Load() noexcept;
 

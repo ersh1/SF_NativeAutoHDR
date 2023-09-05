@@ -1,18 +1,19 @@
 #pragma once
 #include "Settings.h"
 
-#include <dxgi1_6.h>
 #include <d3d12.h>
+#include <dxgi1_6.h>
 
 namespace Hooks
 {
-    class Patches
-    {
-    public:
+	class Patches
+	{
+	public:
 		static void Patch()
 		{
 			uint32_t* frameBufferPtr = nullptr;
 			uint32_t* imageSpaceBufferPtr = nullptr;
+			uint32_t* scaleformCompositeBufferPtr = nullptr;
 
 			{
 				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"C6 45 68 01 8B 05 ?? ?? ?? ??">());
@@ -22,7 +23,7 @@ namespace Hooks
 				const auto offset = *reinterpret_cast<int32_t*>(scan + 6);
 				frameBufferPtr = reinterpret_cast<uint32_t*>(scan + 10 + offset);  // 507A290
 			}
-			
+
 			{
 				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"44 8B 05 ?? ?? ?? ?? 89 55 FB">());
 				if (!scan) {
@@ -30,23 +31,27 @@ namespace Hooks
 				}
 				const auto offset = *reinterpret_cast<int32_t*>(scan + 3);
 				imageSpaceBufferPtr = reinterpret_cast<uint32_t*>(scan + 7 + offset);  // 5079A70
+				scaleformCompositeBufferPtr = reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(imageSpaceBufferPtr) + 0x280);  // 5079CF0
 			}
-			
+
 			const auto settings = Settings::Main::GetSingleton();
 
-			*frameBufferPtr = settings->scRGB ? 77 : 62;
-			*imageSpaceBufferPtr = settings->scRGB ? 77 : 62;
+			*frameBufferPtr = settings->scRGBFrameBuffer ? 77 : 62;
+			*imageSpaceBufferPtr = settings->scRGBImageSpaceBuffer ? 77 : 62;
+			if (settings->scRGBScaleformCompositeBuffer) {
+				*scaleformCompositeBufferPtr = 77;
+			}
 		}
 
-    private:
-    };
+	private:
+	};
 
 	class Hooks
 	{
 	public:
 		struct UnkObject
 		{
-		    uint64_t unk00;
+			uint64_t unk00;
 			uint64_t unk08;
 			uint64_t unk10;
 			uint64_t unk18;
@@ -99,11 +104,11 @@ namespace Hooks
 		static void Hook_CreateRenderTargetView(uintptr_t a1, ID3D12Resource* a_resource, DXGI_FORMAT a_format, uint8_t a4, uint16_t a5, uintptr_t a6);
 		static void Hook_CreateDepthStencilView(uintptr_t a1, ID3D12Resource* a_resource, DXGI_FORMAT a_format, uint8_t a4, uint16_t a5, uintptr_t a6);
 
-		static inline std::add_pointer_t < decltype(Hook_GetFormat)> _GetFormat;
+		static inline std::add_pointer_t<decltype(Hook_GetFormat)> _GetFormat;
 		static inline std::add_pointer_t<decltype(Hook_CreateRenderTargetView)> _CreateRenderTargetView;
 		static inline std::add_pointer_t<decltype(Hook_CreateDepthStencilView)> _CreateDepthStencilView;
 	};
 #endif
 
-    void Install();
+	void Install();
 }
