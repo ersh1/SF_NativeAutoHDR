@@ -1,6 +1,7 @@
 #include "DKUtil/Config.hpp"
 
 #include "Hooks.h"
+#include "Offsets.h"
 #include "Settings.h"
 
 using namespace DKUtil::Alias;
@@ -18,9 +19,11 @@ BOOL APIENTRY DllMain(HMODULE a_hModule, DWORD a_ul_reason_for_call, LPVOID a_lp
 		dku::Logger::Init(Plugin::NAME, std::to_string(Plugin::Version));
 
 		INFO("game type : {}", dku::Hook::GetProcessName());
+		INFO("base address : {:X}", dku::Hook::Module::get().base())
 
 		dku::Hook::Trampoline::AllocTrampoline(14);
 		Settings::Main::GetSingleton()->Load();
+		Offsets::Initialize();
 		Hooks::Install();
 	}
 
