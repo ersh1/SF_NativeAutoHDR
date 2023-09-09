@@ -46,7 +46,5 @@ DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
 	Offsets::Initialize();
 	Hooks::Install();
 
-	Hooks::Install();
-
 	return true;
 }
