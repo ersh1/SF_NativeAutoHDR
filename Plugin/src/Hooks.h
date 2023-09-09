@@ -98,6 +98,8 @@ namespace Hooks
 				const auto UnkFuncCallsite = AsAddress(scan + 5 + callsiteOffset + 0x3EA);
 
 				_UnkFunc = dku::Hook::write_call<5>(UnkFuncCallsite, Hook_UnkFunc);  // 32E7856
+
+				INFO("Found color space hook callsite at {:X}", UnkFuncCallsite)
 			}
 		}
 

@@ -37,12 +37,14 @@ DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
 	DKUtil::Logger::Init(Plugin::NAME, std::to_string(Plugin::Version));
 
 	INFO("{} v{} loaded", Plugin::NAME, Plugin::Version);
+	INFO("base address : {:X}", dku::Hook::Module::get().base())
 
 	// do stuff
 	Settings::Main::GetSingleton()->Load();
 
 	SFSE::AllocTrampoline(14);
 	Offsets::Initialize();
+	Hooks::Install();
 
 	Hooks::Install();
 
