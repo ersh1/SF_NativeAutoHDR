@@ -1,7 +1,15 @@
 #include "Hooks.h"
 
+#include "Offsets.h"
+#include "Utils.h"
+
 namespace Hooks
 {
+    void Patches::SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format)
+    {
+		(*Offsets::bufferArray)[static_cast<uint32_t>(a_buffer)]->format = a_format;
+    }
+
     void Hooks::Hook_UnkFunc(uintptr_t a1, UnkObject* a2)
     {
 		const auto settings = Settings::Main::GetSingleton();
@@ -18,16 +26,6 @@ namespace Hooks
     }
 
 #ifndef NDEBUG
-    DXGI_FORMAT DebugHooks::Hook_GetFormat(uint32_t a_format)
-    {
-		auto format = _GetFormat(a_format);
-		if (format == DXGI_FORMAT_R8G8B8A8_UNORM || format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
-		    return DXGI_FORMAT_R16G16B16A16_FLOAT;
-		}
-
-		return format;
-    }
-
     void DebugHooks::Hook_CreateRenderTargetView(uintptr_t a1, ID3D12Resource* a_resource, DXGI_FORMAT a_format, uint8_t a4, uint16_t a5, uintptr_t a6)
     {
 		const auto textureDesc = a_resource->GetDesc();
@@ -45,11 +43,11 @@ namespace Hooks
 
     void Install()
 	{
+#ifndef NDEBUG
+	    Utils::LogBuffers();
+		//DebugHooks::Hook();
+#endif
 		Hooks::Hook();
 		Patches::Patch();
-
-#ifndef NDEBUG
-		DebugHooks::Hook();
-#endif
 	}
 }
