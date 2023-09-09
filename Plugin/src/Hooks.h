@@ -1,7 +1,8 @@
 #pragma once
 #include "Settings.h"
+#include "Utils.h"
+#include "RE/Buffers.h"
 
-#include <d3d12.h>
 #include <dxgi1_6.h>
 
 namespace Hooks
@@ -11,60 +12,60 @@ namespace Hooks
 	public:
 		static void Patch()
 		{
-			uint32_t* frameBufferPtr = nullptr;
-			uint32_t* imageSpaceBufferPtr = nullptr;
-			uint32_t* scaleformCompositeBufferPtr = nullptr;
-
-			{
-				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"C6 45 68 01 8B 05 ?? ?? ?? ??">());
-				if (!scan) {
-					ERROR("Failed to find FrameBuffer format variable")
-				}
-				const auto offset = *reinterpret_cast<int32_t*>(scan + 6);
-				frameBufferPtr = reinterpret_cast<uint32_t*>(scan + 10 + offset);  // 507A290
-			}
-
-			{
-				const auto scan = static_cast<uint8_t*>(dku::Hook::Assembly::search_pattern<"44 8B 05 ?? ?? ?? ?? 89 55 FB">());
-				if (!scan) {
-					ERROR("Failed to find ImageSpaceBuffer and ScaleformCompositeBuffer format variables")
-				}
-				const auto offset = *reinterpret_cast<int32_t*>(scan + 3);
-				imageSpaceBufferPtr = reinterpret_cast<uint32_t*>(scan + 7 + offset);  // 5079A70
-				scaleformCompositeBufferPtr = reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(imageSpaceBufferPtr) + 0x280);  // 5079CF0
-			}
-
 			const auto settings = Settings::Main::GetSingleton();
 
 			switch (*settings->FrameBufferFormat) {
 			case 1:
-				*frameBufferPtr = 62;
-				break;
+				SetBufferFormat(RE::Buffers::FrameBuffer, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R10G10B10A2_UNORM);
+                break;
 			case 2:
-				*frameBufferPtr = 77;
+				SetBufferFormat(RE::Buffers::FrameBuffer, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
 				break;
 			}
 
 			switch (*settings->ImageSpaceBufferFormat) {
 			case 1:
-				*imageSpaceBufferPtr = 62;
+				SetBufferFormat(RE::Buffers::ImageSpaceBuffer, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R10G10B10A2_UNORM);
 				break;
 			case 2:
-				*imageSpaceBufferPtr = 77;
+				SetBufferFormat(RE::Buffers::ImageSpaceBuffer, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
 				break;
 			}
 
-			switch (*settings->ScaleformCompositeBufferFormat) {
-			case 1:
-				*scaleformCompositeBufferPtr = 62;
-				break;
-			case 2:
-				*scaleformCompositeBufferPtr = 77;
-				break;
+			if (*settings->UpgradeUIRenderTarget) {
+				SetBufferFormat(RE::Buffers::ScaleformCompositeBuffer, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
 			}
+
+			{
+				if (*settings->UpgradeRenderTargets > 0) {
+					const RE::BS_DXGI_FORMAT format = *settings->UpgradeRenderTargets == 1 ? RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R10G10B10A2_UNORM : RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT;
+
+					SetBufferFormat(RE::Buffers::SF_ColorBuffer, format);
+					SetBufferFormat(RE::Buffers::HDRImagespaceBuffer, format);
+					SetBufferFormat(RE::Buffers::ImageSpaceHalfResBuffer, format);
+					SetBufferFormat(RE::Buffers::ImageProcessColorTarget, format);
+
+					if (*settings->UpgradeRenderTargets > 1) {
+						// R11G11B10
+						SetBufferFormat(RE::Buffers::ColorBuffer01, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::NativeResolutionColorBuffer01, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::ImageSpaceBufferB10G11R11, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::ImageSpaceBufferE5B9G9R9, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::TAA_idTech7HistoryColorTarget, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::EnvBRDF, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+
+						// R10G10B10A2
+						SetBufferFormat(RE::Buffers::GBuffer_Normal_EmissiveIntensity, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+						SetBufferFormat(RE::Buffers::ImageSpaceBufferR10G10B10A2, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
+					}
+				}
+			}
+
+			Utils::LogBuffers();
 		}
 
 	private:
+        static void SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format);
 	};
 
 	class Hooks
@@ -124,11 +125,9 @@ namespace Hooks
 		}
 
 	private:
-		static DXGI_FORMAT Hook_GetFormat(uint32_t a_format);
 		static void Hook_CreateRenderTargetView(uintptr_t a1, ID3D12Resource* a_resource, DXGI_FORMAT a_format, uint8_t a4, uint16_t a5, uintptr_t a6);
 		static void Hook_CreateDepthStencilView(uintptr_t a1, ID3D12Resource* a_resource, DXGI_FORMAT a_format, uint8_t a4, uint16_t a5, uintptr_t a6);
 
-		static inline std::add_pointer_t<decltype(Hook_GetFormat)> _GetFormat;
 		static inline std::add_pointer_t<decltype(Hook_CreateRenderTargetView)> _CreateRenderTargetView;
 		static inline std::add_pointer_t<decltype(Hook_CreateDepthStencilView)> _CreateDepthStencilView;
 	};

@@ -1,6 +1,7 @@
 #include "SFSE/Stub.h"
 
 #include "Hooks.h"
+#include "Offsets.h"
 #include "Settings.h"
 
 DLLEXPORT constinit auto SFSEPlugin_Version = []() noexcept {
@@ -41,6 +42,8 @@ DLLEXPORT bool SFSEAPI SFSEPlugin_Load(SFSEInterface* a_sfse)
 	Settings::Main::GetSingleton()->Load();
 
 	SFSE::AllocTrampoline(14);
+	Offsets::Initialize();
+
 	Hooks::Install();
 
 	return true;

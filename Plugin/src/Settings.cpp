@@ -6,8 +6,9 @@ namespace Settings
 	{
 		static std::once_flag ConfigInit;
 		std::call_once(ConfigInit, [&]() {
-			config.Bind(ImageSpaceBufferFormat, 2);
-			config.Bind(ScaleformCompositeBufferFormat, 2);
+			config.Bind(ImageSpaceBufferFormat, 0);
+			config.Bind(UpgradeUIRenderTarget, true);
+			config.Bind(UpgradeRenderTargets, 2);
 			config.Bind(FrameBufferFormat, 0);
 		});
 

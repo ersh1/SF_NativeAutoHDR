@@ -9,7 +9,8 @@ namespace Settings
     {
     public:
 		Integer ImageSpaceBufferFormat{ "ImageSpaceBufferFormat", "Main" };
-		Integer ScaleformCompositeBufferFormat{ "ScaleformCompositeBufferFormat", "Main" };
+		Boolean UpgradeUIRenderTarget = { "UpgradeUIRenderTarget", "Main" };
+		Integer UpgradeRenderTargets{ "UpgradeRenderTargets", "Main" };
 
         Integer FrameBufferFormat = { "FrameBufferFormat", "HDR" };
 
