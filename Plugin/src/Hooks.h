@@ -38,26 +38,14 @@ namespace Hooks
 
 			{
 				if (*settings->UpgradeRenderTargets > 0) {
+					const bool bLimited = *settings->UpgradeRenderTargets == 1 ? true : false;
 					const RE::BS_DXGI_FORMAT format = *settings->UpgradeRenderTargets == 1 ? RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R10G10B10A2_UNORM : RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT;
 
-					SetBufferFormat(RE::Buffers::SF_ColorBuffer, format);
-					SetBufferFormat(RE::Buffers::HDRImagespaceBuffer, format);
-					SetBufferFormat(RE::Buffers::ImageSpaceHalfResBuffer, format);
-					SetBufferFormat(RE::Buffers::ImageProcessColorTarget, format);
-
-					if (*settings->UpgradeRenderTargets > 1) {
-						// R11G11B10
-						SetBufferFormat(RE::Buffers::ColorBuffer01, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::NativeResolutionColorBuffer01, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::ImageSpaceBufferB10G11R11, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::ImageSpaceBufferE5B9G9R9, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::TAA_idTech7HistoryColorTarget, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::EnvBRDF, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-
-						// R10G10B10A2
-						SetBufferFormat(RE::Buffers::GBuffer_Normal_EmissiveIntensity, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-						SetBufferFormat(RE::Buffers::ImageSpaceBufferR10G10B10A2, RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R16G16B16A16_FLOAT);
-					}
+					for (const auto& renderTargetName : settings->RenderTargetsToUpgrade.get_collection()) {
+					    if (auto buffer = GetBufferFromString(renderTargetName)) {
+							UpgradeRenderTarget(buffer, format, bLimited);
+					    }
+                    }
 				}
 			}
 
@@ -65,7 +53,11 @@ namespace Hooks
 		}
 
 	private:
-        static void SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format);
+		static RE::BufferDefinition* GetBufferFromString(std::string_view a_bufferName);
+
+		static void UpgradeRenderTarget(RE::BufferDefinition* a_buffer, RE::BS_DXGI_FORMAT a_format, bool a_bLimited);
+		static void SetBufferFormat(RE::BufferDefinition* a_buffer, RE::BS_DXGI_FORMAT a_format);
+		static void SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format);
 	};
 
 	class Hooks
