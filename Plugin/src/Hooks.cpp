@@ -5,10 +5,54 @@
 
 namespace Hooks
 {
-    void Patches::SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format)
+    RE::BufferDefinition* Patches::GetBufferFromString(std::string_view a_bufferName)
+	{
+		const auto& bufferArray = *Offsets::bufferArray;
+		for (const auto& bufferDefinition : bufferArray) {
+		    if (bufferDefinition->bufferName == a_bufferName) {
+                return bufferDefinition;
+            }
+		}
+
+		return nullptr;
+	}
+	
+    void Patches::UpgradeRenderTarget(RE::BufferDefinition* a_buffer, RE::BS_DXGI_FORMAT a_newFormat, bool a_bLimited)
     {
-		(*Offsets::bufferArray)[static_cast<uint32_t>(a_buffer)]->format = a_format;
+		if (!a_buffer) {
+		    return;
+		}
+
+		if (!std::strcmp(a_buffer->bufferName, "FrameBuffer") || !std::strcmp(a_buffer->bufferName, "ImageSpaceBuffer") || !std::strcmp(a_buffer->bufferName, "ScaleformCompositeBuffer")) {
+			INFO("Warning: {} - skipping because buffer is handled by a separate setting", a_buffer->bufferName)
+			return;
+		}
+
+		if (a_bLimited && a_buffer->format != RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R8G8B8A8_UNORM && a_buffer->format != RE::BS_DXGI_FORMAT::BS_DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) {
+			auto formatNames = Utils::GetDXGIFormatNameMap();
+			INFO("{} - skipping because format is {}", a_buffer->bufferName, formatNames[Offsets::GetDXGIFormat(a_buffer->format)])
+			return;
+		}
+
+		SetBufferFormat(a_buffer, a_newFormat);
     }
+
+    void Patches::SetBufferFormat(RE::BufferDefinition* a_buffer, RE::BS_DXGI_FORMAT a_newFormat)
+    {
+		if (!a_buffer) {
+		    return;
+		}
+
+		auto formatNames = Utils::GetDXGIFormatNameMap();
+		INFO("{} - changing from format {} to {}", a_buffer->bufferName, formatNames[Offsets::GetDXGIFormat(a_buffer->format)], formatNames[Offsets::GetDXGIFormat(a_newFormat)])
+		a_buffer->format = a_newFormat;
+    }
+
+    void Patches::SetBufferFormat(RE::Buffers a_buffer, RE::BS_DXGI_FORMAT a_format)
+	{
+		const auto buffer = (*Offsets::bufferArray)[static_cast<uint32_t>(a_buffer)];
+		SetBufferFormat(buffer, a_format);
+	}
 
     void Hooks::Hook_UnkFunc(uintptr_t a1, UnkObject* a2)
     {

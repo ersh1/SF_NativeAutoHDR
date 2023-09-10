@@ -146,7 +146,6 @@ namespace Utils
     void LogBuffers()
     {
 		INFO("===LOGGING BUFFERS===")
-		INFO("Buffer name, index in array, DXGI_FORMAT")
 
 		std::string logString = "Index, Buffer name, DXGI_FORMAT\n";
 

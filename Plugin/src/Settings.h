@@ -9,10 +9,12 @@ namespace Settings
     {
     public:
 		Integer ImageSpaceBufferFormat{ "ImageSpaceBufferFormat", "Main" };
-		Boolean UpgradeUIRenderTarget = { "UpgradeUIRenderTarget", "Main" };
+		Boolean UpgradeUIRenderTarget{ "UpgradeUIRenderTarget", "Main" };
 		Integer UpgradeRenderTargets{ "UpgradeRenderTargets", "Main" };
 
-        Integer FrameBufferFormat = { "FrameBufferFormat", "HDR" };
+		Integer FrameBufferFormat{ "FrameBufferFormat", "HDR" };
+
+		String RenderTargetsToUpgrade{ "RenderTargetsToUpgrade", "RenderTargets" };
 
         void Load() noexcept;
 
