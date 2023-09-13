@@ -89,7 +89,7 @@ namespace Hooks
 	{
 #ifndef NDEBUG
 	    Utils::LogBuffers();
-		//DebugHooks::Hook();
+		DebugHooks::Hook();
 #endif
 		Hooks::Hook();
 		Patches::Patch();
