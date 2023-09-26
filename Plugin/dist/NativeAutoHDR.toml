@@ -1,0 +1,28 @@
+[Main]
+# This improves color banding if set to 1 or 2 (2 should improve things more than 1), but currently breaks photo mode screenshot functionality (you can still take screenshots with other tools).
+ImageSpaceBufferFormat = 0
+
+# Improves color banding on UI.
+UpgradeUIRenderTarget = true
+
+# Upgrades other render targets. 0 - unchanged; 1 - only upgrade R8G8B8A8 buffers to R10G10B10A2; 2 - upgrade R8G8B8A8, R11G11B10 and R10G10B10A2 buffers to R16G16B16A16. Potentially comes at a slight VRAM cost.
+UpgradeRenderTargets = 2
+
+[HDR]
+# Only change the following setting if you have a HDR monitor! This enables HDR. 0 - unchanged, 1 - HDR10, 2 - scRGB.
+FrameBufferFormat = 0
+
+[RenderTargets]
+# Only change if you know what you're doing
+RenderTargetsToUpgrade = [
+    "SF_ColorBuffer",
+    "HDRImagespaceBuffer",
+    "ImageSpaceHalfResBuffer",
+    "ImageProcessColorTarget",
+    "ImageSpaceBufferB10G11R11",
+    "ImageSpaceBufferE5B9G9R9",
+    "TAA_idTech7HistoryColorTarget",
+    "EnvBRDF",
+    "GBuffer_Normal_EmissiveIntensity",
+    "ImageSpaceBufferR10G10B10A2"
+]

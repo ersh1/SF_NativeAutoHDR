@@ -19,6 +19,6 @@ namespace Settings
         void Load() noexcept;
 
     private:
-		TomlConfig config = COMPILE_PROXY("Data/SFSE/Plugins/NativeHDR.toml"sv);
+		TomlConfig config = COMPILE_PROXY("Data/SFSE/Plugins/NativeAutoHDR.toml"sv);
     };
 }
