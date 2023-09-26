@@ -19,6 +19,6 @@ namespace Settings
         void Load() noexcept;
 
     private:
-		TomlConfig config = COMPILE_PROXY("NativeHDR.toml"sv);
+		TomlConfig config = COMPILE_PROXY("NativeAutoHDR.toml"sv);
     };
 }

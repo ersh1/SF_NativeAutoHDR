@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 
 # info
 project(
-	NativeHDR
-	VERSION 5.1.0
+	NativeAutoHDR
+	VERSION 5.1.2
 	LANGUAGES CXX
 )
 

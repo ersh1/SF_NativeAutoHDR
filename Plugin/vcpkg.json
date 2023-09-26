@@ -1,8 +1,8 @@
 {
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
-    "name": "nativehdr",
+    "name": "nativeautohdr",
     "version-string": "1.0.0",
-    "description": "SFSE plugin that adds native HDR support to Starfield",
+    "description": "SFSE plugin that adds upgrades the Starfield's render target and swapchain formats",
     "dependencies": [
         "fmt",
         "spdlog",
