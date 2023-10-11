@@ -4,7 +4,6 @@
     "version-string": "1.0.0",
     "description": "SFSE plugin that adds upgrades the Starfield's render target and swapchain formats",
     "dependencies": [
-        "fmt",
         "spdlog",
         "nlohmann-json",
         "simpleini",
