@@ -1,4 +1,5 @@
 #pragma once
+#define CONFIG_ENTRY ""
 #include "DKUtil/Config.hpp"
 
 namespace Settings
